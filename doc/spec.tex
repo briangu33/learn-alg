@@ -43,11 +43,12 @@ The PTM thus operates as follows:
     \item Repeat step 2 until the PTM outputs the termination symbol.
 \end{enumerate}
 
-\section{Supervised Training}
+\section{Strongly Supervised Training}
+
+\subsection{Extracting a Turing Machine}
+Strongly supervised experiments are interesting for two reason: first, they are equivalent to the sub-problem of extracting a Turing Machine/human-readable procedure from a ``black box'' (for example, the control of a Neural Turing Machine). Second, they provide an upper bound on the performance of this approach in the weakly supervised setting, allowing us to assess viability of this approach.
 
 \subsection{Initial Program}
-First, we assess the viability of this approach through a series of closely-supervised experiments.
-
 Define an ``action'' to be a pair, consisting of the symbol written (or no-op, or terminate) and the direction of input tape head movement, in a single timestep during the operation of a PTM. For a given ``correct'' sequence of actions, define a ``succeeding branch of computation'' to be a (possibly partially completed) branch of computation whose actions match those of the given sequence. Finally, define a ``successful branch of computation'' to be a completed branch of computation whose actions perfectly match the actions in a given sequence. 
 
 In general, the correct sequence of actions is given by a \textit{target} deterministic Turing Machine, programmed to carry out the desired algorithm.
@@ -58,6 +59,12 @@ To train the PTM, we run all succeeding branches of computation simultaneously, 
 
 Let $\tau$ be the learning schedule. At time $t$ during training, suppose that the PTM is at state $q_1$ with probability $p$, and that it has just read symbol $s_1$. The update rule for $w_{t+1}(q_1, s_1, q_2, s_2, D)$ is as follows:
 
+The likelihood that the PTM is at a state $q$ at timestamp $t+1$ is the sum of the probabilities that succeeding branches from the previous timestamp transitioned to state $q$. To find the probability that the PTM is at state $q$ in timestamp $t+1$, the likelihoods must be renormalized to sum to $1$ (to account for non-succeeding branches).
+
+\subsection{Possible additions to initial program}
+
+\subsubsection{Update Rule 1}
+
 \[ w_{t+1}\leftarrow 
 \begin{cases}
     w_t(q_1, s_1, q_2, s_2, D) + \tau_tpf_t(q_1, s_1, q_2, s_2, D) & \text{($s_2, D$) is the correct action}\\
@@ -65,21 +72,34 @@ Let $\tau$ be the learning schedule. At time $t$ during training, suppose that t
 \end{cases}
 \]
 
-The likelihood that the PTM is at a state $q$ at timestamp $t+1$ is the sum of the probabilities that succeeding branches from the previous timestamp transitioned to state $q$. To find the probability that the PTM is at state $q$ in timestamp $t+1$, the likelihoods must be renormalized to sum to $1$ (to account for non-succeeding branches).
-
-\subsection{Possible additions to initial program}
-
-\subsubsection{Modified update rule}
-The update rule given above rewards correct actions in proportion to the probability of their execution, conditional on the PTM succeeding at that timestep. This implicitly equates to a sort of probabilistic gradient descent with a 0-1 or discrete loss function over actions (correct actions at any timestep are rewarded with a fixed reward; incorrect actions are punished with a fixed loss. Note that this does not exactly correspond to gradient descent since $w$ is being updated rather than $f$, for reasons of computational complexity and stability). However, we found that the following modifications caused different and possibly viable results in training:
+The update rule given above rewards correct actions in proportion to the probability of their execution, conditional on the PTM succeeding at that timestep. Correct actions at any timestep are rewarded with a fixed reward; incorrect actions are punished with a fixed loss. Note that this does not exactly correspond to gradient descent on any natural loss functions, including negative log likelihood of successful computation; in fact, negative log likelihood of successful computation diverges. However, we found that the following modifications caused different and possibly viable results in training:
 \begin{itemize}
     \item Multiply the update expression by $p_{succeeding}$, which can also be tracked with a simple dynamic programming procedure alongside the process of running succeeding branches simultaneously. This forces the PTM to learn the steps of the procedure ``in sequence'', rather than all in parallel. In trials so far, this causes the PTM to learn early procedures in the algorithm at the expense of later procedures.
     \item Remove $p$ (the probability of being in a given state), or replace it with $\sqrt{p}$ or something similar. One problem with the current training program is that the PTM can become stuck at local optima. It is unable to navigate away from these local optima or learn better transitions, since probabilities assigned to possibly better transitions are too small to allow for significant updates. In trials so far, this causes the PTM to be less likely to be stuck in local optima, though it also makes the PTM more uncertain on what transitions to actually reinforce.
-    \item Update $f$ rather than $w$, making the update rule closer to that of a true gradient descent. Unfortunately, this runs into issues at edge cases ($f$ must be within the range $[0,1]$, while $w$ is allowed to span over all real numbers--exactly the reason we chose to use softmax). 
-    \item Redefine loss function over transitions to be cross entropy loss between the learned transition probability vector and the true transition vector. Then perform gradient descent with this loss function. 
 \end{itemize}
+When training with this update rule, or with the modifications, the PTM approaches a deterministic Turing Machine: transition probabilities approach $0$ or $1$, and the resulting machine often resembles the true/correct machine, with a few erroneous transitions.
+
+\subsubsection{Update Rule 2: SGD and Backprop}
+To perform stochastic gradient descent, we must define a loss function and a backpropagation procedure over probabilistic Turing Machines. 
+
+We define the loss function over a training example as the negative log likelihood of successfully producing the output and the correct sequence of steps. For backpropagation, we ``unroll'' the computation of the PTM, much like the the backpropagation procedure of an RNN.        
+
+Suppose that the probability of performing a successful transition at timestep $t$ (conditional on success up through timestep $t-1$) is $p_t$. Our loss can then be written as
+
+\[ L = -\sum_i \log{p_i} \]
+
+Given the definition of $w$ in the above section, we derive the update rule. For a correct transition at time step $t$, the partial derivative is as follows:
+
+\[ \frac{\partial L}{\partial w(q, s, q', s', d)} = \sum_t \frac{Pr(\text{At state $q$ at time $t-1$})Pr(\text{Transition to $q'$, output $s'$, move $d$})}{p_t} \]
+
+For incorrect transitions, the partial derivative is:
+
+\[ \frac{\partial L}{\partial w(q, s, q', s', d)} = -\sum_t \frac{Pr(\text{Correct action at time $t$ \&\& previous state $q$})Pr(\text{Transition to $q'$, output $s'$, move $d$})}{p_t} \]
+
+With this, the likelihood converges.
 
 \subsubsection{Gradual discretization/transition locking}
-With this addition, transitions are gradually ``locked'' one at a time. Once the probability of the most likely transition from any particular (state, input symbol) combination exceeds some threshold in training, that transition is locked, and all non-locked transitions have their probabilities random reinitialized. This causes the PTM to learn transitions one-by-one; reinitialization in theory ought to ensure that every new learned transition is consistent with existing learned transitions, and that no conflicting transitions are learned simultaneously (which would push the PTM to a local optima). However, an error-correction mechanism is needed, so that the PTM may be able to go back and correct locked but bad transitions. In trials, we note that the PTM is ``doomed'' once it learns its first bad transition.
+With this addition, transitions are gradually ``locked'' one at a time. Once the probability of the most likely transition from any particular (state, input symbol) combination exceeds some threshold in training, that transition is locked, and all non-locked transitions have their probabilities random reinitailized. This causes the PTM to learn transitions one-by-one; reinitialization in theory ought to ensure that every new learned transition is consistent with existing learned transitions, and that no conflicting transitions are learned simultaneously (which would push the PTM to a local optima). However, an error-correction mechanism is needed, so that the PTM may be able to go back and correct locked but bad transitions. In trials, we note that the PTM is ``doomed'' once it learns its first bad transition.
 
 \subsubsection{State-by-state learning}
 In this strategy, the PTM learns the procedure one state at a time. Initially, only one state is left ``unlocked.'' The PTM trains until convergence with only this one state. Once transitions have converged, a second state is then ``unlocked,'' and transitions involving the second state are now allowed. Once again, the PTM trains until convergence; the process repeats with remaining states. Coupled with the $p_{succeeding}$ addition to the update rule, this has the effect of forcing the PTM to learn algorithms one phase at a time. 
@@ -101,7 +121,7 @@ Currently, parameters are initialized by drawing from a normal distribution. Inc
 \subsubsection{Summary}
 It is likely thta a combination of methods will need to be used. In particular, coupling state-by-state learning with the $p_{succeeding}$ addition to the update rule seems particularly promising, as it may cause the PTM to learn algorithms in phases in a supervised fashion.
 
-\section{Unsupervised Training}
+\section{Weakly Supervised Training}
 
 A number of similar strategies can be adopted for unsupervised training, where the PTM is trained off of only input and output pairs. 
 
@@ -147,3 +167,4 @@ From any PTM, we extract a corresponding deterministic Turing Machine by extract
 \end{itemize}
 
 \end{document}
+\grid

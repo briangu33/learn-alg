@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2016.11.28)  20 JAN 2017 17:41
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2016.11.28)  25 JAN 2017 01:56
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
 **spec.tex
-(./spec.tex
+(/home/brian/Dropbox/MSR/learn-alg/shared/spec.tex
 LaTeX2e <2016/02/01>
 Babel <3.9q> and hyphenation patterns for 81 language(s) loaded.
 (/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
@@ -545,7 +545,7 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 )
 \Hy@SectionHShift=\skip46
 )
-(./spec.aux)
+(/home/brian/Dropbox/MSR/learn-alg/shared/spec.aux)
 \openout1 = `spec.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 15.
@@ -611,7 +611,8 @@ LaTeX Info: Redefining \ref on input line 15.
 LaTeX Info: Redefining \pageref on input line 15.
 LaTeX Info: Redefining \nameref on input line 15.
 
-(./spec.out) (./spec.out)
+(/home/brian/Dropbox/MSR/learn-alg/shared/spec.out)
+(/home/brian/Dropbox/MSR/learn-alg/shared/spec.out)
 \@outlinefile=\write3
 \openout3 = `spec.out'.
 
@@ -627,37 +628,34 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 75.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 77.
 
 (/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 75.
- [2] [3] [4]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 149.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 77.
+ [2]
+Overfull \hbox (31.02104pt too wide) detected at line 97
+[] \OT1/cmr/m/n/10 = \OMS/cmsy/m/n/10 ^^@ [] []
+ []
+
+[3] [4]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 169.
  [5]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 149.
-
-(./spec.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 149.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 149.
-
-
-Package rerunfilecheck Warning: File `spec.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `spec.out':
-(rerunfilecheck)             Before: 0DFBFEF709F27CB47DF0C6DE1E1F8CC5;1095
-(rerunfilecheck)             After:  2E7F6211773034D6AE11BB240882A0C3;1162.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 149.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 169.
+ (/home/brian/Dropbox/MSR/learn-alg/shared/spec.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 169.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 169.
+Package rerunfilecheck Info: File `spec.out' has not changed.
+(rerunfilecheck)             Checksum: 4B629EFC52A25256BBE4F4FF9C8D5C5C;1337.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 169.
  ) 
 Here is how much of TeX's memory you used:
- 5911 strings out of 493029
- 83131 string characters out of 6136233
+ 5917 strings out of 493029
+ 83745 string characters out of 6136233
  174723 words of memory out of 5000000
- 9377 multiletter control sequences out of 15000+600000
+ 9380 multiletter control sequences out of 15000+600000
  12017 words of font info for 47 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  29i,12n,32p,1082b,401s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -677,10 +675,11 @@ hare/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/t
 exlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/texlive
 /texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texlive/
 texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb>
-Output written on spec.pdf (5 pages, 189964 bytes).
+Output written on /home/brian/Dropbox/MSR/learn-alg/shared/spec.pdf (5 pages, 1
+93711 bytes).
 PDF statistics:
- 174 PDF objects out of 1000 (max. 8388607)
- 148 compressed objects within 2 object streams
- 26 named destinations out of 1000 (max. 500000)
- 129 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 185 PDF objects out of 1000 (max. 8388607)
+ 159 compressed objects within 2 object streams
+ 28 named destinations out of 1000 (max. 500000)
+ 153 words of extra memory for PDF output out of 10000 (max. 10000000)
 

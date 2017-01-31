@@ -24,18 +24,56 @@ import sys
 import time
 
 n_states = 2
-input_alphabet = [Symbol('u'), Symbol('d'), Symbol('l'), Symbol('r'), Symbol('e')]
-# valid_dirs = [Direction('left'), Direction('right')]
-valid_dirs = [Direction('left'), Direction('right'), Direction('up'), Direction('down')]
+# input_alphabet = [Symbol('u'), Symbol('d'), Symbol('l'), Symbol('r'), Symbol('e')]
+input_alphabet = [Symbol('s'), Symbol('0'), Symbol('1'), Symbol('e')]
+valid_dirs = [Direction('left'), Direction('right')]
+# valid_dirs = [Direction('left'), Direction('right'), Direction('up'), Direction('down')]
 ptmctrl = PTMControl(n_states, input_alphabet, valid_dirs, learn_sched = constant_learn_rate)
+
+symbol0 = Symbol('0')
+symbol1 = Symbol('1')
+symbolt = Symbol.term_symbol()
+symbols = Symbol.start_symbol()
+symbole = Symbol.end_symbol()
+symbol_ = Symbol.empty_symbol()
+
+dirR = Direction('right')
+dirL = Direction('left')
+
+ptmctrl.w[0][symbols].upd_w(0, Action(symbol_, dirR), 0.2)
+
+ptmctrl.w[0][symbol0].upd_w(0, Action(symbol_, dirR), 0.2)
+
+ptmctrl.w[0][symbol1].upd_w(0, Action(symbol_, dirR), 0.2)
+
+ptmctrl.w[0][symbole].upd_w(1, Action(symbol_, dirL), 0.2)
+
+ptmctrl.w[1][symbols].upd_w(1, Action(symbolt, dirL), 0.2)
+
+ptmctrl.w[1][symbol0].upd_w(1, Action(symbol0, dirL), 0.2)
+
+ptmctrl.w[1][symbol1].upd_w(1, Action(symbol1, dirL), 0.2)
+
+ptmctrl.w[1][symbole].upd_w(1, Action(symbol_, dirL), 0.2)
+
+
+ptmctrl.w[0][symbols].renormalize()
+ptmctrl.w[0][symbol0].renormalize()
+ptmctrl.w[0][symbol1].renormalize()
+ptmctrl.w[0][symbole].renormalize()
+ptmctrl.w[1][symbols].renormalize()
+ptmctrl.w[1][symbol0].renormalize()
+ptmctrl.w[1][symbol1].renormalize()
+ptmctrl.w[1][symbole].renormalize()
 
 avg_log_prob_start = 0.
 for i in range(20):
-    s, acts = walk_gen()
-    # acts = target_actions_reverse(s)
+    s = copy_input_gen()
+    # s, acts = walk_gen()
+    acts = target_actions_reverse(s)
     # acts = copy_target_actions(s)
-    input_tape = InputTape2D(s)
-    prob = ptmctrl.run2D(input_tape, acts)
+    input_tape = InputTape1D(s)
+    prob = ptmctrl.run(input_tape, acts)
     # print prob
     avg_log_prob_start += (math.log(prob) / len(acts))
 avg_log_prob_start /= 20
@@ -47,18 +85,19 @@ print "************************"
 count = 0
 available_states = [0]
 
-for i in range(15000):
-    s, acts = walk_gen()
-    # acts = target_actions_reverse(s)
+for i in range(100000):
+    s = copy_input_gen()
+    # s, acts = walk_gen()
+    acts = target_actions_reverse(s)
     # acts = copy_target_actions(s)
-    input_tape = InputTape2D(s)
-    prob = ptmctrl.run2D(input_tape, acts, train = True)
+    input_tape = InputTape1D(s)
+    prob = ptmctrl.run(input_tape, acts, train = True)
     #if not(learn is None):
     #    learned.append(learn)
     #    count += 1
     if i == 0:
         smooth = np.log(prob) / len(acts)
-    smooth = 0.95 * smooth + 0.05 * np.log(prob) / len(acts)
+    smooth = 0.99 * smooth + 0.01 * np.log(prob) / len(acts)
     if i % 10 == 0:
         print smooth
     
@@ -84,3 +123,8 @@ if i % 100 == 0:
             p = ptmctrl.w[q][s1].prob_of_trans(j, a)
             print q, "|", s1, "|", j, "|", s2.rep if not(s2.is_term) else "t", "|", d.name
 print "started at:", avg_log_prob_start
+
+s = copy_input_gen()
+acts = target_actions_reverse(s)
+input_tape = InputTape1D(s)
+ptmctrl.run(input_tape, acts, verbose=True)

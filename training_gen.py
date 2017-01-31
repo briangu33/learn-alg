@@ -10,7 +10,7 @@ from action import Direction
 from action import Symbol
 
 def input_gen():
-    length = np.random.geometric(0.2)
+    length = int(np.random.geometric(0.1))
     string = ""
     for i in range(length):
         if np.random.random() < 0.5:
@@ -32,14 +32,14 @@ def target_actions_reverse(s):
     return acts
     
 def copy_input_gen():
-    length = np.random.geometric(0.14)
+    length = int(np.random.geometric(0.1))
     string = ""
     for i in range(length):
         if np.random.random() < 0.5:
             string += "0"
         else:
             string += "1"
-        return string
+    return string
         
 def copy_target_actions(s):
     acts = []

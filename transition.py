@@ -37,7 +37,7 @@ class Transition():
         for i in range(len(valid_dirs)):
             self.dir_ind_map[valid_dirs[i]] = i
 
-        self.w_ind = np.random.normal(scale = 1, size=(n_states,len(output_alph),len(valid_dirs)))
+        self.w_ind = np.random.normal(scale = 0.2, size=(n_states,len(output_alph),len(valid_dirs)))
                     
         self.total = sum(sum(sum(np.exp(self.w_ind))))
         self.update_action_totals()
@@ -46,6 +46,19 @@ class Transition():
         # in the future we'll maybe store a heap of (state, action) pairs
         # ordered by likelihood, so that this can always be right
         self.MLtrans = self.argmax()
+        
+    def deepcopy(self):
+        ret = Transition(self.state, self.read_sym, self.n_states, self.output_alph, self.valid_dirs)
+        ret.locked, ret.min_w, ret.max_w = self.locked, self.min_w, self.max_w
+        
+        ret.sym_ind_map, ret.dir_ind_map = self.sym_ind_map, self.dir_ind_map
+        
+        ret.w_ind = self.w_ind
+        ret.total = self.total
+        ret.action_totals = self.action_totals
+        ret.MLtrans = self.argmax()
+        
+        return ret
     
     def renormalize(self):
         # prevent stability issues by calling this occasionally
@@ -131,14 +144,18 @@ class Transition():
         s_ind = self.sym_ind_map[action.symbol]
         d_ind = self.dir_ind_map[action.direction]
         temp = self.w_ind[state][s_ind][d_ind]
-        if val > temp and self.prob_of_trans(state, action) > 0.99:
+        
+        if val > temp and self.prob_of_trans(state, action) > 0.999:
             # for numerical stability
             self.locked = True
-            return True
+            return
         if val < temp and self.prob_of_trans(state, action) < 1.e-6:
             # for stability
-            return False
+            return
+        
         self.w_ind[state][s_ind][d_ind] = val
         self.action_totals[s_ind][d_ind] += (np.exp(val) - np.exp(temp))
         self.total += (np.exp(val) - np.exp(temp))
-        return False
+        if np.isnan(self.total):
+            print self.total()
+            sys.exit()

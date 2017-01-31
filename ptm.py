@@ -15,6 +15,8 @@ from transition import Transition
 import numpy as np
 import math
 
+import sys
+
 # if we end up needing to store more state-specific information, then we'll
 # probably want to make state objects. for now, we'll keep all the machinery
 # in PTMControl
@@ -23,11 +25,11 @@ def learn_rate(t, k=0.75, t0 = 100):
     return 10 * math.pow(t0 + t, -1*k)
     
 def constant_learn_rate(t):
-    return 0.1
+    return 0.5
     
 class PTMControl():
     
-    def __init__(self, n_states, alphabet, valid_dirs, learn_sched = learn_rate):
+    def __init__(self, n_states, alphabet, valid_dirs, learn_sched = constant_learn_rate):
         # by convention, an alphabet is a list of all possible symbols except
         # the empty symbol and the terminate symbol--i.e., valid input symbols
         
@@ -58,22 +60,68 @@ class PTMControl():
     def trans_sup(self, in_symbol, act):
         # a supervised transition
         p_next = [0. for i in range(self.n_states)]
-        p_success = 0.
         for from_state in range(self.n_states):
             trans = self.w[from_state][in_symbol]
             p_next += self.p[from_state] * trans.probs(act)
+        self.p_succeeding *= self.p_success(in_symbol, act)
+        self.p = p_next
+        
+    def p_success(self, in_symbol, act):
+        p_success = 0.
+        for from_state in range(self.n_states):
+            trans = self.w[from_state][in_symbol]
             p_success += self.p[from_state] * trans.prob_of_action(act)
-        self.p_succeeding *= p_success
+        return p_success
     
     def transition_and_update(self, in_symbol, act, learn_coeff):
+        succ = self.p_success(in_symbol, act)
+        """
+        for from_state in range(self.n_states):
+            new_trans = Transition(from_state, in_symbol, self.n_states, self.output_alphabet, self.valid_dirs)
+            trans = self.w[from_state][in_symbol]
+            multiplier = (1 - learn_coeff / succ * self.p[from_state] * trans.prob_of_action(act) / trans.total)
+            if np.random.random() < 0.02:
+                print learn_coeff, succ, trans.prob_of_action(act), trans.total
+            new_trans.w_ind = trans.w_ind * multiplier
+            for to_state in range(self.n_states):
+                update_val = trans.get_w(to_state, act) \
+                + learn_coeff * trans.prob_of_trans(to_state, act) * self.p[from_state] / succ # self.p_succeeding #  # 
+                new_trans.upd_w(to_state, act, update_val)
+            new_trans.renormalize()
+            self.w[from_state][in_symbol] = new_trans
+        """
         # a supervised transition which also updates weights
         for from_state in range(self.n_states):
             trans = self.w[from_state][in_symbol]
+            new_trans = trans.deepcopy()
             for to_state in range(self.n_states):
                 update_val = trans.get_w(to_state, act) \
-                + learn_coeff * trans.prob_of_trans(to_state, act) * self.p[from_state]#* self.p_succeeding #  # 
-                trans.upd_w(to_state, act, update_val)
-        """ 
+                + learn_coeff * trans.prob_of_trans(to_state, act) * self.p[from_state] / succ # self.p_succeeding #  # 
+                if np.isnan(update_val):
+                    print trans.get_w(to_state, act), trans.prob_of_trans(to_state, act)
+                    sys.exit()
+                new_trans.upd_w(to_state, act, update_val)
+            # new_trans.renormalize()
+            self.w[from_state][in_symbol] = new_trans
+        """        
+        for from_state in range(self.n_states):
+            trans = self.w[from_state][in_symbol]
+            new_trans = trans.deepcopy()
+            multiplier = learn_coeff / succ * self.p[from_state] * trans.prob_of_action(act)
+            for to_state in range(self.n_states):
+                for s in self.output_alphabet:
+                    for d in self.valid_dirs:
+                        this_act = Action(s, d)
+                        update_val = trans.get_w(to_state, this_act) \
+                        - multiplier * trans.prob_of_trans(to_state, this_act)
+                        if np.isnan(update_val):
+                            print trans.get_w(to_state, this_act), multiplier, trans.prob_of_trans(to_state, this_act)
+                            sys.exit()
+                        new_trans.upd_w(to_state, this_act, update_val)
+            # new_trans.renormalize()
+            self.w[from_state][in_symbol] = new_trans
+        """
+        """
         if b:
             
             for i in range(self.n_states):
@@ -93,7 +141,9 @@ class PTMControl():
         self.trans_sup(in_symbol, act)
         self.timestep += 1
     
-    def run(self, input_tape, acts, train = False):
+    def run(self, input_tape, acts, train = False, verbose = False):
+        if verbose:
+            print "Input:", input_tape.rep
         self.p = [1. if i == 0 else 0. for i in range(self.n_states)]
         self.p_succeeding = 1.
         tape_loc = 0
@@ -109,16 +159,19 @@ class PTMControl():
                 tape_loc = max(0, tape_loc - 1)
             elif act.direction.name == 'right':
                 tape_loc = min(input_tape.length - 1, tape_loc + 1)
+            if verbose:
+                print "Tape location:", tape_loc
+                print self.p_succeeding, act.symbol.rep, act.direction.name, self.p
         self.p = [1. if i == 0 else 0. for i in range(self.n_states)]
         ret = self.p_succeeding
         self.p_succeeding = 1.
-        
-        if train and np.random.random() < 0.01:
+        """
+        if train and np.random.random() < 0.1:
             for i in range(self.n_states):
                 for s in self.input_alphabet:
                     self.w[i][s].renormalize()    
-        
-        return ret, learned     
+        """
+        return ret    
 
     def run2D(self, input_tape, acts, train = False):
         self.p = [1. if i == 0 else 0. for i in range(self.n_states)]
