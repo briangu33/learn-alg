@@ -1,7 +1,7 @@
 # Fdb version 3
-["pdflatex"] 1488156523 "spec.tex" "/home/brian/Dropbox/MSR/learn-alg/doc/spec.pdf" "spec" 1488156524
+["pdflatex"] 1488156587 "spec.tex" "/home/brian/Dropbox/MSR/learn-alg/doc/spec.pdf" "spec" 1488156587
   "/etc/texmf/web2c/texmf.cnf" 1480358438 1101 af7716885e081ab43982cab7b4672c1a ""
-  "/home/brian/Dropbox/MSR/learn-alg/doc/spec.aux" 1488156524 2574 481afe6b84529119169423c531e4d6ff ""
+  "/home/brian/Dropbox/MSR/learn-alg/doc/spec.aux" 1488156587 2574 481afe6b84529119169423c531e4d6ff ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1272929888 3287 e6b82fe08f5336d4d5ebc73fb1152e87 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1246382020 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
@@ -81,15 +81,15 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1458942643 31351 b32c45dce4a01cb7b53ed90c546614ca ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1480365931 1863403 f3ff9a4253bcb5fb9a9baaf0c572cb01 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1480366048 3855909 516f8184306efa3a9872c8d95e65ebee ""
-  "spec.aux" 1488156524 2574 481afe6b84529119169423c531e4d6ff ""
-  "spec.out" 1488156524 1281 fa5c395f47ecf79d3481af6f09b05b4b ""
-  "spec.tex" 1488156522 18528 f98f6b9e17d3076836f37de32fb458e8 ""
+  "spec.aux" 1488156587 2574 481afe6b84529119169423c531e4d6ff ""
+  "spec.out" 1488156587 1281 fa5c395f47ecf79d3481af6f09b05b4b ""
+  "spec.tex" 1488156585 18525 a91d86ec7bdc175797afcfb3d174252f ""
   (generated)
-  "spec.out"
+  "spec.pdf"
   "spec.log"
   "/home/brian/Dropbox/MSR/learn-alg/doc/spec.log"
+  "/home/brian/Dropbox/MSR/learn-alg/shared/spec.log"
   "spec.aux"
+  "spec.out"
   "/home/brian/Dropbox/MSR/learn-alg/doc/spec.pdf"
   "/home/brian/Dropbox/MSR/learn-alg/shared/spec.pdf"
-  "spec.pdf"
-  "/home/brian/Dropbox/MSR/learn-alg/shared/spec.log"
