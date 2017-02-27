@@ -4,16 +4,15 @@
 \BOOKMARK [2][-]{subsection.3.1}{Extracting a Turing Machine}{section.3}% 4
 \BOOKMARK [2][-]{subsection.3.2}{Initial Program}{section.3}% 5
 \BOOKMARK [2][-]{subsection.3.3}{Possible additions to initial program}{section.3}% 6
-\BOOKMARK [3][-]{subsubsection.3.3.1}{Update Rule 1}{subsection.3.3}% 7
-\BOOKMARK [3][-]{subsubsection.3.3.2}{Update Rule 2: SGD and Backprop}{subsection.3.3}% 8
-\BOOKMARK [3][-]{subsubsection.3.3.3}{Gradual discretization/transition locking}{subsection.3.3}% 9
-\BOOKMARK [3][-]{subsubsection.3.3.4}{State-by-state learning}{subsection.3.3}% 10
-\BOOKMARK [3][-]{subsubsection.3.3.5}{Locked transition perturbations}{subsection.3.3}% 11
-\BOOKMARK [3][-]{subsubsection.3.3.6}{Backpropagation of rewards}{subsection.3.3}% 12
-\BOOKMARK [3][-]{subsubsection.3.3.7}{State collapsing}{subsection.3.3}% 13
-\BOOKMARK [3][-]{subsubsection.3.3.8}{High-variance initialization}{subsection.3.3}% 14
-\BOOKMARK [3][-]{subsubsection.3.3.9}{Summary}{subsection.3.3}% 15
-\BOOKMARK [1][-]{section.4}{Weakly Supervised Training}{}% 16
-\BOOKMARK [1][-]{section.5}{Tasks}{}% 17
-\BOOKMARK [1][-]{section.6}{Discretization}{}% 18
-\BOOKMARK [1][-]{section.7}{Miscellaneous Notes}{}% 19
+\BOOKMARK [3][-]{subsubsection.3.3.1}{Update Rule 1: SGD/backprop-like}{subsection.3.3}% 7
+\BOOKMARK [3][-]{subsubsection.3.3.2}{Forcing specialization with the loss function}{subsection.3.3}% 8
+\BOOKMARK [3][-]{subsubsection.3.3.3}{Update Rule 2}{subsection.3.3}% 9
+\BOOKMARK [3][-]{subsubsection.3.3.4}{Gradual discretization/transition locking}{subsection.3.3}% 10
+\BOOKMARK [3][-]{subsubsection.3.3.5}{State-by-state learning}{subsection.3.3}% 11
+\BOOKMARK [3][-]{subsubsection.3.3.6}{Locked transition perturbations}{subsection.3.3}% 12
+\BOOKMARK [3][-]{subsubsection.3.3.7}{High-variance initialization}{subsection.3.3}% 13
+\BOOKMARK [3][-]{subsubsection.3.3.8}{Summary}{subsection.3.3}% 14
+\BOOKMARK [1][-]{section.4}{Weakly Supervised Training}{}% 15
+\BOOKMARK [1][-]{section.5}{Tasks}{}% 16
+\BOOKMARK [1][-]{section.6}{Discretization}{}% 17
+\BOOKMARK [1][-]{section.7}{Miscellaneous Notes}{}% 18

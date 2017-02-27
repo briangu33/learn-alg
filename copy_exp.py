@@ -23,7 +23,7 @@ import numpy as np
 import sys
 import time
 
-n_states = 2
+n_states = 5
 # input_alphabet = [Symbol('u'), Symbol('d'), Symbol('l'), Symbol('r'), Symbol('e')]
 input_alphabet = [Symbol('s'), Symbol('0'), Symbol('1'), Symbol('e')]
 valid_dirs = [Direction('left'), Direction('right')]
@@ -39,12 +39,12 @@ symbol_ = Symbol.empty_symbol()
 
 dirR = Direction('right')
 dirL = Direction('left')
-
+"""
 ptmctrl.w[0][symbols].upd_w(0, Action(symbol_, dirR), 0.2)
 
 ptmctrl.w[0][symbol0].upd_w(0, Action(symbol_, dirR), 0.2)
 
-ptmctrl.w[0][symbol1].upd_w(0, Action(symbol_, dirR), 0.2)
+ptmctrl.w[0][symbol1].upd_w(0, Action(symbol_, dirR), 0.)
 
 ptmctrl.w[0][symbole].upd_w(1, Action(symbol_, dirL), 0.2)
 
@@ -52,10 +52,10 @@ ptmctrl.w[1][symbols].upd_w(1, Action(symbolt, dirL), 0.2)
 
 ptmctrl.w[1][symbol0].upd_w(1, Action(symbol0, dirL), 0.2)
 
-ptmctrl.w[1][symbol1].upd_w(1, Action(symbol1, dirL), 0.2)
+ptmctrl.w[1][symbol1].upd_w(1, Action(symbol1, dirL), 0.)
 
 ptmctrl.w[1][symbole].upd_w(1, Action(symbol_, dirL), 0.2)
-
+"""
 
 ptmctrl.w[0][symbols].renormalize()
 ptmctrl.w[0][symbol0].renormalize()

@@ -63,7 +63,34 @@ The likelihood that the PTM is at a state $q$ at timestamp $t+1$ is the sum of t
 
 \subsection{Possible additions to initial program}
 
-\subsubsection{Update Rule 1}
+\subsubsection{Update Rule 1: SGD/backprop-like}
+To perform stochastic gradient descent, we must define a loss function and a gradient descent procedure over probabilistic Turing Machines. 
+
+We define the loss function over a training example as the negative log likelihood of successfully producing the output and the correct sequence of steps. To calculate gradients over time, we ``unroll'' the computation of the PTM, much like the the backpropagation procedure of an RNN. 
+
+Suppose that the probability of performing a successful transition at timestep $t$ (conditional on success up through timestep $t-1$) is $p_t$. Our loss can then be written as
+
+\[ L = -\sum_i \log{p_i} \]
+
+Given the definition of $w$ in the above section, we derive the update rule. It turns out that, with the correct formulation, partial derivatives can be computed directly without the need for backpropagation of gradients. For a correct transition at time step $t$, the partial derivative is as follows:
+
+\[ \frac{\partial L}{\partial w(q, s, q', s', d)} = \sum_t \frac{Pr(\text{At state $q$ at time $t-1$})Pr(\text{Transition to $q'$, output $s'$, move $d$})}{p_t} \]
+
+For incorrect transitions, the partial derivative is:
+
+\[ \frac{\partial L}{\partial w(q, s, q', s', d)} = -\sum_t \frac{Pr(\text{Correct action at time $t$ \&\& previous state $q$})Pr(\text{Transition to $q'$, output $s'$, move $d$})}{p_t} \]
+
+We find that the likelihood converges when using this update rules.
+
+\subsubsection{Forcing specialization with the loss function}
+
+When the PTM is trained with the above update rule, states generally specialize in the actions they output. For example, in the reverse task, the first state upon reading any input symbol outputs the correct action--move right, no output. The second state, upon reading any input symbol, also outputs the correct action--move left, output the same symbol as the input. However, state transitions are not always correct; in particular, the PTM ends up learning to simultaneously be at both states with equal probability at all times. To correct for this, we may wish to alter the loss function which we perform SGD with respect to:
+
+\[ L' = -\sum_i \log{p_i} + \lambda\sum_i (p_{i,0}^2 + p_{i,1}^2) \]
+
+where $p_{i,q}$ is the probability that the PTM is at state $q$ in timestep $i$. Including a function that is concave up with respect to state probabilities would encourage the PTM to stick to specific states, rather than trying to probabilistically be at every state. We are in the process of implementing this.
+
+\subsubsection{Update Rule 2}
 
 \[ w_{t+1}\leftarrow 
 \begin{cases}
@@ -79,25 +106,6 @@ The update rule given above rewards correct actions in proportion to the probabi
 \end{itemize}
 When training with this update rule, or with the modifications, the PTM approaches a deterministic Turing Machine: transition probabilities approach $0$ or $1$, and the resulting machine often resembles the true/correct machine, with a few erroneous transitions.
 
-\subsubsection{Update Rule 2: SGD and Backprop}
-To perform stochastic gradient descent, we must define a loss function and a backpropagation procedure over probabilistic Turing Machines. 
-
-We define the loss function over a training example as the negative log likelihood of successfully producing the output and the correct sequence of steps. For backpropagation, we ``unroll'' the computation of the PTM, much like the the backpropagation procedure of an RNN.        
-
-Suppose that the probability of performing a successful transition at timestep $t$ (conditional on success up through timestep $t-1$) is $p_t$. Our loss can then be written as
-
-\[ L = -\sum_i \log{p_i} \]
-
-Given the definition of $w$ in the above section, we derive the update rule. For a correct transition at time step $t$, the partial derivative is as follows:
-
-\[ \frac{\partial L}{\partial w(q, s, q', s', d)} = \sum_t \frac{Pr(\text{At state $q$ at time $t-1$})Pr(\text{Transition to $q'$, output $s'$, move $d$})}{p_t} \]
-
-For incorrect transitions, the partial derivative is:
-
-\[ \frac{\partial L}{\partial w(q, s, q', s', d)} = -\sum_t \frac{Pr(\text{Correct action at time $t$ \&\& previous state $q$})Pr(\text{Transition to $q'$, output $s'$, move $d$})}{p_t} \]
-
-With this, the likelihood converges.
-
 \subsubsection{Gradual discretization/transition locking}
 With this addition, transitions are gradually ``locked'' one at a time. Once the probability of the most likely transition from any particular (state, input symbol) combination exceeds some threshold in training, that transition is locked, and all non-locked transitions have their probabilities random reinitailized. This causes the PTM to learn transitions one-by-one; reinitialization in theory ought to ensure that every new learned transition is consistent with existing learned transitions, and that no conflicting transitions are learned simultaneously (which would push the PTM to a local optima). However, an error-correction mechanism is needed, so that the PTM may be able to go back and correct locked but bad transitions. In trials, we note that the PTM is ``doomed'' once it learns its first bad transition.
 
@@ -109,10 +117,10 @@ One important hyperparameter in this strategy is the amount of probability we in
 \subsubsection{Locked transition perturbations}
 In this strategy, locked/high-confidence transitions in a PTM that has converged/reached a local optima are occasionally randomly reinitailized and retrained. In trials, this has sometimes allowed PTMs to reach less incorrect local optimas. The frequency of perturbation should change based on how successful the PTM is.
 
-\subsubsection{Backpropagation of rewards}
-The current update rule is ``short-sighted'' in that it punishes or rewards transitions exactly and only at the time of action (a transition is rewarded if it leads to a correct action, or punished if it leads to an incorrect action). There is some implicit backpropagation of loss in that $p$ and $p_{succeeding}$ are included in the update rule, so paths with higher likelihoods of success are positively reinforced. However, there is no explicit procedure for backpropagation. In this approach, \textit{all} transitions along low-likelihood successful paths would be punished, while all transitions along high-likelihood successful paths would be reinforced.
+%\subsubsection{Backpropagation of rewards}
+%The current update rule is ``short-sighted'' in that it punishes or rewards transitions exactly and only at the time of action (a transition is rewarded if it leads to a correct action, or punished if it leads to an incorrect action). There is some implicit backpropagation of loss in that $p$ and $p_{succeeding}$ are included in the update rule, so paths with higher likelihoods of success are positively reinforced. However, there is no explicit procedure for backpropagation. In this approach, \textit{all} transitions along low-likelihood successful paths would be punished, while all transitions along high-likelihood successful paths would be reinforced.
 
-\subsubsection{State collapsing}
+%\subsubsection{State collapsing}
 If a PTM is initialized with many more states than is necessary, with transition locking it should be able to learn arbitrary procedures with any of the above update rules. States with identical transition rules can then be ``collapsed'' into the same state once a correct PTM has been learned. However, from trials, it appears that the number of states required for this approach to work (without any of the other strategies) is far more than would be computationally feasible. 
 
 \subsubsection{High-variance initialization}
@@ -167,4 +175,5 @@ From any PTM, we extract a corresponding deterministic Turing Machine by extract
 \end{itemize}
 
 \end{document}
+\grid
 \grid

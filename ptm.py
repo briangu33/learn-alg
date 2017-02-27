@@ -25,7 +25,7 @@ def learn_rate(t, k=0.75, t0 = 100):
     return 10 * math.pow(t0 + t, -1*k)
     
 def constant_learn_rate(t):
-    return 0.5
+    return 0.01
     
 class PTMControl():
     
@@ -96,14 +96,14 @@ class PTMControl():
             new_trans = trans.deepcopy()
             for to_state in range(self.n_states):
                 update_val = trans.get_w(to_state, act) \
-                + learn_coeff * trans.prob_of_trans(to_state, act) * self.p[from_state] / succ # self.p_succeeding #  # 
+                + learn_coeff * trans.prob_of_trans(to_state, act) * self.p[from_state]#  / succ # self.p_succeeding #  # 
                 if np.isnan(update_val):
                     print trans.get_w(to_state, act), trans.prob_of_trans(to_state, act)
                     sys.exit()
                 new_trans.upd_w(to_state, act, update_val)
             # new_trans.renormalize()
             self.w[from_state][in_symbol] = new_trans
-        """        
+        """
         for from_state in range(self.n_states):
             trans = self.w[from_state][in_symbol]
             new_trans = trans.deepcopy()
